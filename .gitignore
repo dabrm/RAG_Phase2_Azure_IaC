@@ -1,0 +1,50 @@
+
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# ===== Visual Studio =====
+.vscode/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env*
+
+# ===== Jupyter / IPython =====
+.ipynb_checkpoints/
+.profile_default/
+.ipython/
+
+# ===== Data / Models (DO NOT COMMIT) =====
+data/
+datasets/
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.ckpt
+*.onnx
+
+# ===== ML / Experiment tracking =====
+mlruns/
+wandb/
+lightning_logs/
+
+# ===== Logs =====
+*.log
+logs/
