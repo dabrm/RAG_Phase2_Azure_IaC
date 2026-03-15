@@ -21,10 +21,6 @@ env/
 .env
 .env*
 
-# Terraform - ignores entire directory, then re-inludes only .tf files (not state-files, plans logs etc)
-terraform/**
-!terraform/**/*.tf
-
 # ===== Jupyter / IPython =====
 .ipynb_checkpoints/
 .profile_default/
@@ -43,6 +39,14 @@ datasets/
 *.pt
 *.ckpt
 *.onnx
+
+# ===== Terraform =====
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+!.terraform.lock.hcl
 
 # ===== ML / Experiment tracking =====
 mlruns/
