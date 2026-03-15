@@ -21,11 +21,9 @@ env/
 .env
 .env*
 
-# Terraform
-terraform/.terraform
-*.tfstate
-*.backup
-*.hcl
+# Terraform - ignores entire directory, then re-inludes only .tf files (not state-files, plans logs etc)
+terraform/**
+!terraform/**/*.tf
 
 # ===== Jupyter / IPython =====
 .ipynb_checkpoints/
