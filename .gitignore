@@ -21,6 +21,12 @@ env/
 .env
 .env*
 
+# Terraform
+terraform/.terraform
+*.tfstate
+*.backup
+*.hcl
+
 # ===== Jupyter / IPython =====
 .ipynb_checkpoints/
 .profile_default/
