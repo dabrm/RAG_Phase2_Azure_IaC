@@ -5,7 +5,13 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 
   secret_permissions = [
     "Get",
+    "List",
     "Set",
-    "List"
+    "Delete",
+    "Purge"
   ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
