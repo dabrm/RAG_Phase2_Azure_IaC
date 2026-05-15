@@ -1,4 +1,4 @@
-from retrieval.search import vector_search
+from rag_app.retrieval.search import vector_search
 
 
 def retrieve_context(query: str):

@@ -1,8 +1,8 @@
-from core.clients import openai_client
-from core.config import settings
+from rag_app.core.clients import openai_client
+from rag_app.core.config import settings
 
-from retrieval.retrieve import retrieve_context
-from generation.prompts import SYSTEM_PROMPT
+from rag_app.retrieval.retrieve import retrieve_context
+from rag_app.generation.prompts import SYSTEM_PROMPT
 
 
 def generate_answer(question: str):

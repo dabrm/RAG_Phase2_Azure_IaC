@@ -45,8 +45,15 @@ class Settings(BaseSettings):
     chunk_size: int = 500
     chunk_overlap: int = 50
 
-    class Config:
-        env_file = ".env"
+    #
+    # Pydantic Settings Config
+    #
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
+
 
 
 settings = Settings()

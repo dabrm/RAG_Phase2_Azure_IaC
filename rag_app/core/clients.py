@@ -6,7 +6,7 @@ from azure.search.documents import SearchClient
 
 from openai import AzureOpenAI
 
-from core.config import settings
+from rag_app.core.config import settings
 
 
 #

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from generation.generate import generate_answer
+from rag_app.generation.generate import generate_answer
 
 
 app = FastAPI(title=" 'The Hobbit' RAG Platform")

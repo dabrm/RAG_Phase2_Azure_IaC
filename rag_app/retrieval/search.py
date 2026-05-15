@@ -1,6 +1,6 @@
-from core.clients import search_client
-from ingestion.embeddings import generate_embedding
-from core.config import settings
+from rag_app.core.clients import search_client
+from rag_app.ingestion.embeddings import generate_embedding
+from rag_app.core.config import settings
 
 
 def vector_search(query: str):
