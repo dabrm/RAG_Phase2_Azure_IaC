@@ -14,4 +14,6 @@ resource "azurerm_key_vault_access_policy" "current_user" {
   lifecycle {
     prevent_destroy = true
   }
+
+  depends_on = [azurerm_key_vault.kv]
 }
