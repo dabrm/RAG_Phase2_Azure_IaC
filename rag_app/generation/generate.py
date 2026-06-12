@@ -1,4 +1,4 @@
-from rag_app.core.clients import openai_client
+from rag_app.core.clients import get_openai_client
 from rag_app.core.config import settings
 
 from rag_app.retrieval.retrieve import retrieve_context
@@ -26,7 +26,7 @@ Question:
         }
     ]
 
-    response = openai_client.chat.completions.create(
+    response = get_openai_client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
         temperature=0.3

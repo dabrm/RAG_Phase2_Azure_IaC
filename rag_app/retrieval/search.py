@@ -1,4 +1,4 @@
-from rag_app.core.clients import search_client
+from rag_app.core.clients import get_search_client
 from rag_app.ingestion.embeddings import generate_embedding
 from rag_app.core.config import settings
 
@@ -7,7 +7,7 @@ def vector_search(query: str):
 
     embedding = generate_embedding(query)
 
-    results = search_client.search(
+    results = get_search_client.search(
         search_text=None,
         vector_queries=[
             {
