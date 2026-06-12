@@ -17,24 +17,19 @@ secret_client = SecretClient(
     credential=credential
 )
 
+# simple in-memory cache
+_secret_cache = {}
 
-# Retrieve secrets
-azure_openai_api_key = secret_client.get_secret(
-    # "azure-openai-api-key"
-    "openai-api-key"
-).value
+def get_secret(name: str) -> str:
+    if name not in _secret_cache:
+        _secret_cache[name] = secret_client.get_secret(name).value
+    return _secret_cache[name]
 
-azure_search_key = secret_client.get_secret(
-    "azure-search-key"
-).value
-
-openai_endpoint = secret_client.get_secret(
-    "openai-endpoint"
-).value
-
-search_endpoint = secret_client.get_secret(
-    "search-endpoint"
-).value
+# Retrieve secrets (start FastAPI even if KV is temporarily slow)
+azure_openai_api_key = get_secret("openai-api-key")
+azure_search_key = get_secret("azure-search-key")
+openai_endpoint = get_secret("openai-endpoint")
+search_endpoint = get_secret("search-endpoint")
 
 
 # Azure OpenAI Client
