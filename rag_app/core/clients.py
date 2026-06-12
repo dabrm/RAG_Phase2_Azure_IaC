@@ -28,10 +28,18 @@ azure_search_key = secret_client.get_secret(
     "azure-search-key"
 ).value
 
+openai_endpoint = secret_client.get_secret(
+    "openai-endpoint"
+).value
+
+search_endpoint = secret_client.get_secret(
+    "search_endpoint"
+).value
+
 
 # Azure OpenAI Client
 openai_client = AzureOpenAI(
-    azure_endpoint=settings.azure_openai_endpoint,
+    azure_endpoint=openai_endpoint,
     api_key=azure_openai_api_key,
     api_version=settings.azure_openai_api_version
 )
@@ -39,8 +47,7 @@ openai_client = AzureOpenAI(
 
 # Azure AI Search Client
 search_client = SearchClient(
-    # endpoint=settings.azure_search_endpoint,
-    endpoint=settings.search_endpoint,
-    index_name=settings.azure_search_index_name,
+    endpoint=search_endpoint, # taken from KeyVault
+    index_name=settings.azure_search_index_name, # taken from .env (via rag_app.core.config.settings)
     credential=AzureKeyCredential(azure_search_key)
 )

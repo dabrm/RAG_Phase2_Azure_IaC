@@ -1,1 +1,1 @@
-from api.app import app
+from rag_app.api.app import app
