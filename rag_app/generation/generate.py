@@ -16,13 +16,14 @@ def generate_answer(question: str):
         },
         {
             "role": "user",
-            "content": f'''
-Context:
+            "content": f"""Context:
+--- BEGIN CONTEXT ---
 {context}
+--- END CONTEXT ---
 
 Question:
 {question}
-'''
+"""
         }
     ]
     openai_client = get_openai_client()
@@ -30,7 +31,7 @@ Question:
     response = openai_client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
-        temperature=0.3
+        temperature=settings.temperature
     )
 
     return response.choices[0].message.content

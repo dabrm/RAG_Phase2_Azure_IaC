@@ -25,11 +25,6 @@ def get_secret(name: str) -> str:
         _secret_cache[name] = secret_client.get_secret(name).value
     return _secret_cache[name]
 
-# Retrieve secrets (start FastAPI even if KV is temporarily slow)
-azure_openai_api_key = get_secret("openai-api-key")
-azure_search_key = get_secret("azure-search-key")
-openai_endpoint = get_secret("openai-endpoint")
-search_endpoint = get_secret("search-endpoint")
 
 
 _openai_client = None
@@ -42,7 +37,9 @@ def get_openai_client():
         _openai_client = AzureOpenAI(
             azure_endpoint=get_secret("openai-endpoint"),
             api_key=get_secret("openai-api-key"),
-            api_version=settings.azure_openai_api_version
+            api_version=settings.azure_openai_api_version,
+            timeout=30,
+            max_retries=2
         )
     return _openai_client
 
@@ -53,6 +50,7 @@ def get_search_client():
         _search_client = SearchClient(
             endpoint=get_secret("search-endpoint"),
             index_name=settings.azure_search_index_name,
-            credential=AzureKeyCredential(get_secret("azure-search-key"))
+            credential=AzureKeyCredential(get_secret("azure-search-key")),
+            retry_total=2
         )
     return _search_client
