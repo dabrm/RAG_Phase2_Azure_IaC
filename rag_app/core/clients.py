@@ -33,7 +33,7 @@ openai_endpoint = secret_client.get_secret(
 ).value
 
 search_endpoint = secret_client.get_secret(
-    "search_endpoint"
+    "search-endpoint"
 ).value
 
 

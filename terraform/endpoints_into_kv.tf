@@ -22,7 +22,7 @@ resource "azurerm_key_vault_secret" "openai_key" {
 }
 
 resource "azurerm_key_vault_secret" "search_endpoint" {
-  name         = "search_endpoint"
+  name         = "search-endpoint"
   #value        = azurerm_search_service.search.query_keys[0].key
   value   = "https://${azurerm_search_service.search.name}.search.windows.net"
   key_vault_id = azurerm_key_vault.kv.id
