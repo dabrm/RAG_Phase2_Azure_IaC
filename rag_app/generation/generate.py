@@ -25,8 +25,9 @@ Question:
 '''
         }
     ]
+    openai_client = get_openai_client()
 
-    response = get_openai_client.chat.completions.create(
+    response = openai_client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
         temperature=0.3
