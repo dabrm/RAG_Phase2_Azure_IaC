@@ -1,4 +1,4 @@
-from rag_app.core.clients import get_openai_client()
+from rag_app.core.clients import get_openai_client
 from rag_app.core.config import settings
 
 
