@@ -9,10 +9,7 @@ from openai import AzureOpenAI
 from rag_app.core.config import settings
 
 
-#
 # Key Vault
-#
-
 credential = DefaultAzureCredential()
 
 secret_client = SecretClient(
@@ -21,12 +18,10 @@ secret_client = SecretClient(
 )
 
 
-#
 # Retrieve secrets
-#
-
 azure_openai_api_key = secret_client.get_secret(
-    "azure-openai-api-key"
+    # "azure-openai-api-key"
+    "openai-api-key"
 ).value
 
 azure_search_key = secret_client.get_secret(
@@ -34,10 +29,7 @@ azure_search_key = secret_client.get_secret(
 ).value
 
 
-#
 # Azure OpenAI Client
-#
-
 openai_client = AzureOpenAI(
     azure_endpoint=settings.azure_openai_endpoint,
     api_key=azure_openai_api_key,
@@ -45,12 +37,10 @@ openai_client = AzureOpenAI(
 )
 
 
-#
 # Azure AI Search Client
-#
-
 search_client = SearchClient(
-    endpoint=settings.azure_search_endpoint,
+    # endpoint=settings.azure_search_endpoint,
+    endpoint=settings.search_endpoint,
     index_name=settings.azure_search_index_name,
     credential=AzureKeyCredential(azure_search_key)
 )

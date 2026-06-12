@@ -32,3 +32,13 @@ resource "azurerm_key_vault_secret" "search_endpoint" {
     azurerm_key_vault_access_policy.current_user
   ]
 }
+
+resource "azurerm_key_vault_secret" "search_key" {
+  name         = "azure-search-key"
+  value        = azurerm_search_service.search.primary_key
+  key_vault_id = azurerm_key_vault.kv.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.current_user
+  ]
+}
