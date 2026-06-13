@@ -27,7 +27,8 @@ env/
 .ipython/
 
 # ===== Data / Models (DO NOT COMMIT) =====
-data/
+# data/ # wiki-html pages are intentionally kept as part of repo
+data/generated/ # evals, exports, temps etc
 datasets/
 *.csv
 *.tsv

@@ -3,11 +3,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
 
+    # src-data (mini-example)
+    data_directory: str = "data/hobbit"
+
     # Azure OpenAI
     azure_openai_api_version: str = "2024-02-01"
 
     azure_openai_chat_deployment: str
     azure_openai_embedding_deployment: str
+    embedding_dimensions: int = 1536 # hardcoded for now, since we stay with gpt-3o-mini embedding model
 
     # Azure AI Search
     azure_search_index_name: str

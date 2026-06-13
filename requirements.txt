@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+
+pydantic
+pydantic-settings
+
+beautifulsoup4
+
+openai
+
+azure-identity
+azure-keyvault-secrets
+azure-search-documents

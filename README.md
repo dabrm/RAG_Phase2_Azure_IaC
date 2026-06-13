@@ -1,2 +1,8 @@
-# RAG_Phase2_Azure_IaC
-copy of previous project, with Infra as Code functionality and slightly beter folder structure
+# RAG_demo_Hobbit
+Demo dataset used for ingestion.
+
+Source:
+Wikipedia HTML exports.
+
+Purpose:
+Provide reproducible ingestion and retrieval testing.

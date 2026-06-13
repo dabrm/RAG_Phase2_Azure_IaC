@@ -45,7 +45,8 @@ LARGE_CHUNKS_STRATEGY = ChunkingStrategy(
 
 # orchestration separated from policy
 # clean ingestion pipeline,  easy experimentation
-def chunk_text(
+def 
+(
     text: str,
     source: str,
     title: str,
