@@ -2,9 +2,10 @@ from pathlib import Path
 from loaders.wiki_loader import load_wikipedia_html
 from rag_app.ingestion.chunking import chunk_text,DEFAULT_STRATEGY
 from rag_app.ingestion.indexing import chunks_to_search_documents,upload_documents
+from rag_app.core.config import settings
 
 
-DATA_DIR = Path("data")
+DATA_DIR = Path(settings.data_directory)
 
 
 def ingest_html_file(html_file: Path):

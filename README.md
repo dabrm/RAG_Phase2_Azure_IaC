@@ -1,8 +1,14 @@
-# RAG_demo_Hobbit
-Demo dataset used for ingestion.
+# Hobbit RAG on Azure
 
-Source:
-Wikipedia HTML exports.
+Production-style Retrieval-Augmented Generation (RAG) application built on:
 
-Purpose:
-Provide reproducible ingestion and retrieval testing.
+- Azure OpenAI
+- Azure AI Search
+- Azure Key Vault
+- Terraform
+
+Features:
+- Infrastructure as Code
+- Vector Search
+- Wikipedia-based knowledge corpus
+- FastAPI endpoint

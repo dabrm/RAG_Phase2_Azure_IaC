@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     azure_openai_chat_deployment: str
     azure_openai_embedding_deployment: str
-    embedding_dimensions: int = 1536 # hardcoded for now, since we stay with gpt-3o-mini embedding model
+    embedding_dimensions: int = 1536 # text-embedding-3-small default dimensions
 
     # Azure AI Search
     azure_search_index_name: str
