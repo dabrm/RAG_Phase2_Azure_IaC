@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 import uuid
+import re
+
 
 @dataclass
 class Chunk:
@@ -11,16 +13,17 @@ class Chunk:
     title: str
     strategy_name: str
 
+
 @dataclass
 class ChunkingStrategy:
 
     # Core chunking parameters
-    chunk_size: int = 500 # measured in characters
+    chunk_size: int = 500
     chunk_overlap: int = 50
 
     # Splitting behavior
     split_on_paragraphs: bool = True
-    preserve_sentence_boundaries: bool = True # placeholder, no logic yet
+    preserve_sentence_boundaries: bool = True
 
     # Metadata
     strategy_name: str = "default"
@@ -28,13 +31,11 @@ class ChunkingStrategy:
 
 DEFAULT_STRATEGY = ChunkingStrategy()
 
-
 SMALL_CHUNKS_STRATEGY = ChunkingStrategy(
     chunk_size=300,
     chunk_overlap=30,
     strategy_name="small_chunks"
 )
-
 
 LARGE_CHUNKS_STRATEGY = ChunkingStrategy(
     chunk_size=1000,
@@ -42,9 +43,73 @@ LARGE_CHUNKS_STRATEGY = ChunkingStrategy(
     strategy_name="large_chunks"
 )
 
+# avoid mid-word splitting of the overlap
+def get_overlap(text: str, overlap: int) -> str:
+    words = text.split()
 
-# orchestration separated from policy
-# clean ingestion pipeline,  easy experimentation
+    result = []
+    size = 0
+
+    for word in reversed(words):
+        size += len(word) + 1
+
+        if size > overlap:
+            break
+
+        result.insert(0, word)
+
+    return " ".join(result)
+
+def split_long_text(text: str, max_size: int) -> List[str]:
+    """
+    Recursive splitter:
+    paragraph -> sentence -> character fallback
+    """
+
+    text = text.strip()
+
+    if len(text) <= max_size:
+        return [text]
+
+    # sentence splitting
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+
+    if len(sentences) > 1:
+        pieces = []
+
+        current = ""
+
+        for sentence in sentences:
+
+            if len(sentence) > max_size:
+                # recurse again (eventually hits char fallback)
+                pieces.extend(split_long_text(sentence, max_size))
+                continue
+
+            candidate = (
+                sentence
+                if not current
+                else current + " " + sentence
+            )
+
+            if len(candidate) <= max_size:
+                current = candidate
+            else:
+                pieces.append(current)
+                current = sentence
+
+        if current:
+            pieces.append(current)
+
+        return pieces
+
+    # character fallback
+    return [
+        text[i:i + max_size]
+        for i in range(0, len(text), max_size)
+    ]
+
+
 def chunk_text(
     text: str,
     source: str,
@@ -52,33 +117,85 @@ def chunk_text(
     strategy: ChunkingStrategy
 ) -> List[Chunk]:
 
-    # Normalize whitespace
     text = text.strip()
 
-    # Split into paragraphs
+    # Paragraph split
     if strategy.split_on_paragraphs:
-        paragraphs = [
+        raw_paragraphs = [
             p.strip()
-            for p in text.split("\n\n") # double-newline -> usually new paragraph
+            for p in text.split("\n\n")
             if p.strip()
         ]
     else:
-        paragraphs = [text]
+        raw_paragraphs = [text]
 
+    # Recursive expansion
+    paragraphs = []
 
-    # Build chunks
+    for paragraph in raw_paragraphs:
+
+        if len(paragraph) <= strategy.chunk_size:
+            paragraphs.append(paragraph)
+        else:
+            paragraphs.extend(
+                split_long_text(
+                    paragraph,
+                    strategy.chunk_size
+                )
+            )
+
     chunks = []
     current_chunk = ""
     chunk_index = 0
 
     for paragraph in paragraphs:
-        # If paragraph fits -> append
-        if len(current_chunk) + len(paragraph) < strategy.chunk_size:
-            current_chunk += "\n\n" + paragraph
 
-        # Otherwise finalize chunk
+        if not current_chunk:
+            current_chunk = paragraph
+            continue
+
+        candidate = current_chunk + "\n\n" + paragraph
+
+        if len(candidate) <= strategy.chunk_size:
+            current_chunk = candidate
+
         else:
-            chunk = Chunk(
+
+            chunks.append(
+                Chunk(
+                    chunk_id=str(uuid.uuid4()),
+                    content=current_chunk.strip(),
+                    chunk_index=chunk_index,
+                    source=source,
+                    title=title,
+                    strategy_name=strategy.strategy_name
+                )
+            )
+
+            overlap_text = get_overlap(
+                current_chunk,
+                strategy.chunk_overlap
+                )
+
+            current_chunk = (
+                overlap_text
+                + "\n\n"
+                + paragraph
+            )
+
+            # Safety guard
+            if len(current_chunk) > strategy.chunk_size:
+                current_chunk = current_chunk[
+                    -strategy.chunk_size:
+                ]
+
+            chunk_index += 1
+
+    # Final chunk
+    if current_chunk.strip():
+
+        chunks.append(
+            Chunk(
                 chunk_id=str(uuid.uuid4()),
                 content=current_chunk.strip(),
                 chunk_index=chunk_index,
@@ -86,25 +203,6 @@ def chunk_text(
                 title=title,
                 strategy_name=strategy.strategy_name
             )
-
-            chunks.append(chunk)
-
-            # Overlap handling
-            overlap_text = current_chunk[ - strategy.chunk_overlap:]
-            current_chunk = overlap_text + "\n\n" + paragraph
-            chunk_index += 1
-
-    # Final chunk
-    if current_chunk.strip(): # is cleaned chunk non-empty ("" == False in Python)
-        chunk = Chunk(
-            chunk_id=str(uuid.uuid4()),
-            content=current_chunk.strip(),
-            chunk_index=chunk_index,
-            source=source,
-            title=title,
-            strategy_name=strategy.strategy_name
         )
-
-        chunks.append(chunk)
 
     return chunks

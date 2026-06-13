@@ -1,3 +1,5 @@
+from azure.search.documents.models import VectorizedQuery
+
 from rag_app.core.clients import get_search_client
 from rag_app.ingestion.embeddings import generate_embeddings
 from rag_app.core.config import settings
@@ -5,20 +7,20 @@ from rag_app.core.config import settings
 
 def vector_search(query: str):
 
-    embedding = generate_embeddings(query)
-    
+    embedding = generate_embeddings([query])[0]
+
+    vector_query = VectorizedQuery(
+        vector=embedding,
+        k_nearest_neighbors=settings.top_k_retrieval,
+        fields="contentVector"
+    )
+
     search_client = get_search_client()
+
     results = search_client.search(
         search_text=None,
-        vector_queries=[
-            {
-                "kind": "vector",
-                "vector": embedding,
-                "fields": "contentVector",
-                "k": settings.top_k_retrieval
-            }
-        ],
-        select=["content", "source"]
+        vector_queries=[vector_query],
+        select=["content", "source", "title"]
     )
 
     return list(results)

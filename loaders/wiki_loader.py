@@ -12,7 +12,14 @@ def load_wikipedia_html(path: str) -> str:
     content = soup.find(id="mw-content-text")
 
     if content:
-        text = content.get_text(" ", strip=True)
+        paragraphs = [
+            p.get_text(" ", strip=True)
+            for p in content.find_all("p")
+            if p.get_text(" ", strip=True)
+        ]
+
+        text = "\n\n".join(paragraphs)
+
     else:
         text = soup.get_text(" ", strip=True)
 
