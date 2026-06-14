@@ -145,9 +145,15 @@ def build_ingestion_index_definition() -> SearchIndex:
     fields = [
 
         SimpleField(
-            name="content_hash",
+            name="hash_id",
             type=SearchFieldDataType.String,
             key=True
+        ),
+
+        SimpleField(
+            name="file_hash",
+            type=SearchFieldDataType.String,
+            filterable=True
         ),
 
         SimpleField(
@@ -157,7 +163,19 @@ def build_ingestion_index_definition() -> SearchIndex:
         ),
 
         SimpleField(
-            name="title",
+            name="strategy_name",
+            type=SearchFieldDataType.String,
+            filterable=True
+        ),
+
+        SimpleField(
+            name="embedding_model",
+            type=SearchFieldDataType.String,
+            filterable=True
+        ),
+
+        SimpleField(
+            name="ingested_at",
             type=SearchFieldDataType.String,
             filterable=True
         )
@@ -167,7 +185,6 @@ def build_ingestion_index_definition() -> SearchIndex:
         name=settings.azure_search_ingestion_index_name,
         fields=fields
     )
-
 
 if __name__ == "__main__":
 
