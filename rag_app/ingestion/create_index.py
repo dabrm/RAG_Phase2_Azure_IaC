@@ -10,16 +10,32 @@ from azure.search.documents.indexes.models import (
     SimpleField,
     VectorSearch,
     VectorSearchProfile,
-    HnswAlgorithmConfiguration # Azure vector-search algorithm
+    HnswAlgorithmConfiguration
 )
 
 from rag_app.core.clients import get_secret
 from rag_app.core.config import settings
 
 
-def index_exists(index_client, index_name: str) -> bool:
+def get_index_client() -> SearchIndexClient:
 
-    existing_indexes = list(index_client.list_indexes())
+    endpoint = get_secret("search-endpoint")
+    api_key = get_secret("azure-search-key")
+
+    return SearchIndexClient(
+        endpoint=endpoint,
+        credential=AzureKeyCredential(api_key)
+    )
+
+
+def index_exists(
+    index_client: SearchIndexClient,
+    index_name: str
+) -> bool:
+
+    existing_indexes = list(
+        index_client.list_indexes()
+    )
 
     return any(
         idx.name == index_name
@@ -27,7 +43,29 @@ def index_exists(index_client, index_name: str) -> bool:
     )
 
 
-def build_index_definition() -> SearchIndex:
+def create_index_if_not_exists(
+    index: SearchIndex
+):
+
+    index_client = get_index_client()
+
+    if index_exists(
+        index_client=index_client,
+        index_name=index.name
+    ):
+        print(
+            f"Index '{index.name}' already exists."
+        )
+        return
+
+    index_client.create_index(index)
+
+    print(
+        f"Index '{index.name}' created."
+    )
+
+
+def build_rag_index_definition() -> SearchIndex:
 
     fields = [
 
@@ -40,6 +78,12 @@ def build_index_definition() -> SearchIndex:
         SearchableField(
             name="content",
             type=SearchFieldDataType.String
+        ),
+
+        SimpleField(
+            name="content_hash",
+            type=SearchFieldDataType.String,
+            filterable=True
         ),
 
         SimpleField(
@@ -96,33 +140,41 @@ def build_index_definition() -> SearchIndex:
     )
 
 
-def create_index_if_not_exists():
+def build_ingestion_index_definition() -> SearchIndex:
 
-    endpoint = get_secret("search-endpoint")
-    api_key = get_secret("azure-search-key")
+    fields = [
 
-    index_client = SearchIndexClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(api_key)
-    )
+        SimpleField(
+            name="content_hash",
+            type=SearchFieldDataType.String,
+            key=True
+        ),
 
-    if index_exists(
-        index_client=index_client,
-        index_name=settings.azure_search_index_name
-    ):
-        print(
-            f"Index '{settings.azure_search_index_name}' already exists."
+        SimpleField(
+            name="source",
+            type=SearchFieldDataType.String,
+            filterable=True
+        ),
+
+        SimpleField(
+            name="title",
+            type=SearchFieldDataType.String,
+            filterable=True
         )
-        return
+    ]
 
-    index = build_index_definition()
-
-    index_client.create_index(index)
-
-    print(
-        f"Index '{settings.azure_search_index_name}' created."
+    return SearchIndex(
+        name=settings.azure_search_ingestion_index_name,
+        fields=fields
     )
 
 
 if __name__ == "__main__":
-    create_index_if_not_exists()
+
+    create_index_if_not_exists(
+        build_rag_index_definition()
+    )
+
+    create_index_if_not_exists(
+        build_ingestion_index_definition()
+    )

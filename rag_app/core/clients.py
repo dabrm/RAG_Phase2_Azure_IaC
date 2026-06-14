@@ -17,23 +17,33 @@ secret_client = SecretClient(
     credential=credential
 )
 
-# simple in-memory cache
+# Simple in-memory secret cache
 _secret_cache = {}
 
+
 def get_secret(name: str) -> str:
+
     if name not in _secret_cache:
-        _secret_cache[name] = secret_client.get_secret(name).value
+        _secret_cache[name] = (
+            secret_client
+            .get_secret(name)
+            .value
+        )
+
     return _secret_cache[name]
 
 
-
+# Client caches
 _openai_client = None
-_search_client = None
+_search_clients = {}
 
 
 def get_openai_client():
+
     global _openai_client
+
     if _openai_client is None:
+
         _openai_client = AzureOpenAI(
             azure_endpoint=get_secret("openai-endpoint"),
             api_key=get_secret("openai-api-key"),
@@ -41,16 +51,23 @@ def get_openai_client():
             timeout=30,
             max_retries=2
         )
+
     return _openai_client
 
 
-def get_search_client():
-    global _search_client
-    if _search_client is None:
-        _search_client = SearchClient(
+def get_search_client(
+    index_name: str
+) -> SearchClient:
+
+    if index_name not in _search_clients:
+
+        _search_clients[index_name] = SearchClient(
             endpoint=get_secret("search-endpoint"),
-            index_name=settings.azure_search_index_name,
-            credential=AzureKeyCredential(get_secret("azure-search-key")),
+            index_name=index_name,
+            credential=AzureKeyCredential(
+                get_secret("azure-search-key")
+            ),
             retry_total=2
         )
-    return _search_client
+
+    return _search_clients[index_name]

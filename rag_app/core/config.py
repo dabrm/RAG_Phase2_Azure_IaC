@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     embedding_batch_size: int = 100
 
     # Azure AI Search
-    azure_search_index_name: str
+    azure_search_index_name: str # one srtoring chunks
+    azure_search_ingestion_index_name : str # one storing deterministic-hashes for ingested chubks (deduplication)
 
     # Key Vault
     key_vault_url: str
