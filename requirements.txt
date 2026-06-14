@@ -8,6 +8,7 @@ beautifulsoup4
 
 openai
 
+azure-core
 azure-identity
 azure-keyvault-secrets
 azure-search-documents
