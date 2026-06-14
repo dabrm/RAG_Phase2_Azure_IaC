@@ -1,13 +1,115 @@
+from dataclasses import dataclass
+from typing import List, Optional
+
 from rag_app.retrieval.search import vector_search
 
 
-def retrieve_context(query: str):
+# ----------------------------
+# Structured retrieval object
+# ----------------------------
+@dataclass
+class RetrievedChunk:
+    content: str
+    source: str
+    title: str
+    chunk_index: int
+    score: Optional[float] = None
 
-    results = vector_search(query)
 
-    formatted_chunks = []
+# ----------------------------
+# Deduplication (smarter)
+# ----------------------------
+def _deduplicate(docs: List[RetrievedChunk]) -> List[RetrievedChunk]:
+    """
+    Deduplicates using a stronger key:
+    (source + chunk_index + first 200 chars)
+    """
 
-    for doc in results:
-        formatted_chunks.append(doc["content"])
+    seen = set()
+    unique = []
 
-    return "\n\n".join(formatted_chunks)
+    for d in docs:
+        key = (
+            d.source,
+            d.chunk_index,
+            d.content[:200]
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        unique.append(d)
+
+    return unique
+
+
+# ----------------------------
+# Context formatting
+# ----------------------------
+def _format_chunk(doc: RetrievedChunk) -> str:
+    return (
+        f"[Source: {doc.source} | Title: {doc.title} | Chunk: {doc.chunk_index} | Score: {doc.score}]\n"
+        f"{doc.content.strip()}"
+    )
+
+
+# ----------------------------
+# Context builder (core logic)
+# ----------------------------
+def retrieve_context(query: str, top_k: int = 5, max_chars: int = 12000) -> str:
+    """
+    End-to-end retrieval pipeline:
+    search → normalize → dedup → rank → budget → format
+    """
+
+    raw_results = vector_search(query)
+
+    if not raw_results:
+        return ""
+
+    # 1. normalize results
+    results: List[RetrievedChunk] = []
+    for r in raw_results:
+        results.append(
+            RetrievedChunk(
+                content=r.get("content", ""),
+                source=r.get("source", "unknown"),
+                title=r.get("title", "unknown"),
+                chunk_index=r.get("chunk_index", 0),
+                score=r.get("score")
+            )
+        )
+
+    # 2. deduplicate
+    results = _deduplicate(results)
+
+    # 3. score-aware sorting (critical upgrade)
+    results.sort(
+        key=lambda x: (x.score or 0),
+        reverse=True
+    )
+
+    # 4. top_k cutoff
+    results = results[:top_k]
+
+    # 5. context budgeting (simple but effective)
+    selected = []
+    total_chars = 0
+
+    for r in results:
+        chunk_len = len(r.content)
+
+        if total_chars + chunk_len > max_chars:
+            break
+
+        selected.append(r)
+        total_chars += chunk_len
+
+    # 6. format final context
+    formatted = [
+        _format_chunk(doc)
+        for doc in selected
+    ]
+
+    return "\n\n---\n\n".join(formatted)
