@@ -41,7 +41,7 @@ def vector_search(query: str) -> List[SearchResultChunk]:
 
     vector_query = _build_vector_query(embedding)
 
-    search_client = get_search_client()
+    search_client = get_search_client(settings.azure_search_index_name)
 
     # 2. Hybrid search (vector + keyword)
     results = search_client.search(

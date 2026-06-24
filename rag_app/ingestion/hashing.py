@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from pathlib import Path
 import hashlib
-import uuid
 
 from rag_app.core.clients import get_search_client
 from rag_app.core.config import settings
@@ -67,7 +66,7 @@ def mark_as_ingested(
     )
 
     document = {
-        "hash_id": str(uuid.uuid4()),
+        "hash_id": file_hash,
         "file_hash": file_hash,
         "source": source,
         "strategy_name": strategy_name,
