@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
-import uuid
 import re
+import hashlib
 
 
 @dataclass
@@ -42,6 +42,22 @@ LARGE_CHUNKS_STRATEGY = ChunkingStrategy(
     chunk_overlap=100,
     strategy_name="large_chunks"
 )
+
+def generate_chunk_id(
+    source: str,
+    chunk_index: int,
+    content: str
+) -> str:
+
+    return hashlib.sha256(
+        (
+            source
+            + "|"
+            + str(chunk_index)
+            + "|"
+            + content
+        ).encode("utf-8")
+    ).hexdigest()
 
 # avoid mid-word splitting of the overlap
 def get_overlap(text: str, overlap: int) -> str:
@@ -163,7 +179,10 @@ def chunk_text(
 
             chunks.append(
                 Chunk(
-                    chunk_id=str(uuid.uuid4()),
+                    chunk_id=generate_chunk_id(
+                        source
+                        ,chunk_index
+                        ,current_chunk.strip()),
                     content=current_chunk.strip(),
                     chunk_index=chunk_index,
                     source=source,
@@ -196,7 +215,10 @@ def chunk_text(
 
         chunks.append(
             Chunk(
-                chunk_id=str(uuid.uuid4()),
+                chunk_id=generate_chunk_id(
+                    source,
+                    chunk_index,
+                    current_chunk.strip()),
                 content=current_chunk.strip(),
                 chunk_index=chunk_index,
                 source=source,

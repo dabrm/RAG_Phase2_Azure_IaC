@@ -1,9 +1,11 @@
 from typing import List
+import time
 
 from rag_app.core.clients import get_search_client
 from rag_app.ingestion.chunking import Chunk
 from rag_app.ingestion.embeddings import generate_embeddings
 from rag_app.core.config import settings
+from rag_app.ingestion.hashing import compute_content_hash
 
 
 def chunks_to_search_documents(chunks: List[Chunk]) -> List[dict]:
@@ -25,6 +27,9 @@ def chunks_to_search_documents(chunks: List[Chunk]) -> List[dict]:
             generate_embeddings(batch)
         )
 
+        print(f"Embedded batch {i // settings.embedding_batch_size + 1}")
+        time.sleep(11)
+
     if len(chunks) != len(embeddings):
         raise ValueError(
             f"Embedding count mismatch. "
@@ -44,7 +49,8 @@ def chunks_to_search_documents(chunks: List[Chunk]) -> List[dict]:
                 "source": chunk.source,
                 "title": chunk.title,
                 "chunk_index": chunk.chunk_index,
-                "strategy_name": chunk.strategy_name
+                "strategy_name": chunk.strategy_name,
+                "content_hash": compute_content_hash(chunk.content)
             }
         )
 
@@ -53,7 +59,7 @@ def chunks_to_search_documents(chunks: List[Chunk]) -> List[dict]:
 
 def upload_documents(documents: List[dict]):
 
-    search_client = get_search_client()
+    search_client = get_search_client(settings.azure_search_index_name)
 
     results = search_client.upload_documents(
         documents=documents

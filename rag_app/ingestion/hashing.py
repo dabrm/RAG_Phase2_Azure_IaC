@@ -6,6 +6,15 @@ import uuid
 from rag_app.core.clients import get_search_client
 from rag_app.core.config import settings
 
+def compute_content_hash(content: str) -> str:
+    """
+    SHA256 hash of chunk contents.
+    Used for chunk-level deduplication.
+    """
+
+    return hashlib.sha256(
+        content.encode("utf-8")
+    ).hexdigest()
 
 def compute_file_hash(path: Path) -> str:
     """

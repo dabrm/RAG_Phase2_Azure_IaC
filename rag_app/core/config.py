@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     azure_openai_chat_deployment: str
     azure_openai_embedding_deployment: str
     embedding_dimensions: int = 1536 # text-embedding-3-small default dimensions
-    embedding_batch_size: int = 100
+    embedding_batch_size: int = 1 # using cheapest tier of embedding model (6 requests/min limit)
 
     # Azure AI Search
     azure_search_index_name: str # one srtoring chunks
