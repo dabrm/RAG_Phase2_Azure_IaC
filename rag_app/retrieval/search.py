@@ -31,7 +31,7 @@ def vector_search(query: str) -> List[SearchResultChunk]:
     Hybrid vector search over Azure AI Search index.
     """
 
-    query = query = rewrite_query(query)
+    query = rewrite_query(query)
 
     if not query:
         raise ValueError("Query cannot be empty.")

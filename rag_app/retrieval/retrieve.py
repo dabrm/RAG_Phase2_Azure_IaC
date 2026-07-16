@@ -73,13 +73,13 @@ def retrieve_context(query: str, top_k: int = 5, max_chars: int = 12000) -> str:
     for r in raw_results:
         results.append(
             RetrievedChunk(
-                content=r.get("content", ""),
-                source=r.get("source", "unknown"),
-                title=r.get("title", "unknown"),
-                chunk_index=r.get("chunk_index", 0),
-                score=r.get("score")
-            )
+            content=r.content,
+            source=r.source,
+            title=r.title,
+            chunk_index=r.chunk_index,
+            score=r.score
         )
+    )
 
     # 2. deduplicate
     results = _deduplicate(results)
