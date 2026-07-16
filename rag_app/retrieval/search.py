@@ -15,7 +15,7 @@ class SearchResultChunk:
     source: str
     title: str
     chunk_index: int
-    score: Optional[float] = None
+    score: Optional[dict] = None
 
 
 def _build_vector_query(embedding: List[float]) -> VectorizedQuery:
@@ -54,15 +54,21 @@ def vector_search(query: str) -> List[SearchResultChunk]:
     output: List[SearchResultChunk] = []
 
     for r in results:
+
+        score = r.get("@search.score")
+
+        if isinstance(score, dict):
+            score = None
+
         output.append(
             SearchResultChunk(
                 content=r.get("content", ""),
                 source=r.get("source", ""),
                 title=r.get("title", ""),
                 chunk_index=r.get("chunk_index", 0),
-                score=getattr(r, "@search.score", None)
-            )
-        )
+                score=float(score) if score is not None else None
+                )
+                )
 
     # 4. Guard: no results
     if not output:

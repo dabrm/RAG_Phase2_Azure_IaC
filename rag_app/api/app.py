@@ -28,7 +28,7 @@ async def chat(request: QueryRequest):
                 "title": chunk.title
                 ,"source": chunk.source
                 ,"chunk": chunk.chunk_index
-                ,"score": chunk.score
+                ,"retrieval_score": chunk.score
                 } 
                 for chunk in result.sources
                 ]

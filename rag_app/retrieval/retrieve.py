@@ -11,7 +11,7 @@ class RetrievedChunk:
     source: str
     title: str
     chunk_index: int
-    score: Optional[float] = None
+    score: Optional[dict] = None
 
 # ----------------------------
 # Structured retrieval object (dataclass instead of dictionary)
@@ -104,9 +104,9 @@ def retrieve(query: str, top_k: int = 5, max_chars: int = 12000) -> RetrievalRes
 
     # 3. score-aware sorting (critical upgrade)
     results.sort(
-        key=lambda x: (x.score or 0),
-        reverse=True
-    )
+    key=lambda x: float(x.score) if x.score is not None else 0.0,
+    reverse=True
+)
 
     # 4. top_k cutoff
     results = results[:top_k]
