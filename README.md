@@ -139,33 +139,19 @@ Each document passes through the following stages:
 ```mermaid
 flowchart LR
 
-A[Wikipedia HTML Files]
-    --> B[BeautifulSoup Parser]
+A[Streamlit Chat UI]
+B[FastAPI API]
+C[Query Rewrite]
+D[Azure AI Search]
+E[Azure OpenAI]
+F[Answer + Citations]
 
-B
-    --> C[Extract Article Content]
-
-C
-    --> D[Recursive Chunking]
-
-D
-    --> E[Generate Metadata]
-
-E
-    --> F[Calculate SHA-256 Hash]
-
-F
-    --> G{Previously Ingested?}
-
-G -- Yes --> H[Skip Document]
-
-G -- No --> I[Azure OpenAI Embeddings]
-
-I
-    --> J[Azure AI Search Index]
-
-F
-    --> K[Ingestion Metadata Index]
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> A
 ```
 
 The ingestion process is deterministic and idempotent. If a document has already been processed and its content has not changed, embedding generation and indexing are skipped, reducing both processing time and Azure OpenAI costs.
