@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import time
 
 
 API_URL = "http://localhost:8000/chat"
@@ -69,17 +70,17 @@ if question:
 
 
     with st.chat_message("assistant"):
+        placeholder = st.empty()
+        words = result["answer"].split()
+        current = ""
+        
+        for word in words:
+            current += word + " "
+            placeholder.markdown(current)
+            time.sleep(0.08)
 
-        st.write(
-            result["answer"]
-        )
-
-        with st.expander(
-            "📚 Retrieved sources"
-        ):
-
+        with st.expander("📚 Retrieved sources"):
             for source in result["sources"]:
-
                 st.write(
                     f"""
                     **{source['title']}**
