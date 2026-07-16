@@ -15,12 +15,21 @@ class QueryRequest(BaseModel):
 @app.post("/chat")
 async def chat(request: QueryRequest):
 
-    answer = await anyio.to_thread.run_sync(
-        generate_answer,
-        request.question
-    )
+    result = await anyio.to_thread.run_sync(
+        generate_answer
+        ,request.question
+        )
 
     return {
-        "question": request.question,
-        "answer": answer
-    }
+        "question": request.question
+        ,"answer": result.answer
+        ,"sources": [
+            {
+                "title": chunk.title
+                ,"source": chunk.source
+                ,"chunk": chunk.chunk_index
+                ,"score": chunk.score
+                } 
+                for chunk in result.sources
+                ]
+                }

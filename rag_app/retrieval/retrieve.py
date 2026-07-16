@@ -4,9 +4,7 @@ from typing import List, Optional
 from rag_app.retrieval.search import vector_search
 
 
-# ----------------------------
-# Structured retrieval object
-# ----------------------------
+
 @dataclass
 class RetrievedChunk:
     content: str
@@ -15,6 +13,23 @@ class RetrievedChunk:
     chunk_index: int
     score: Optional[float] = None
 
+# ----------------------------
+# Structured retrieval object (dataclass instead of dictionary)
+# ----------------------------
+@dataclass
+class RetrievalResult:
+    """
+    Structured output of the retrieval pipeline.
+
+    context:
+        Formatted string injected into the LLM prompt.
+
+    chunks:
+        Original retrieved chunks with metadata.
+    """
+
+    context: str
+    chunks: List[RetrievedChunk]
 
 # ----------------------------
 # Deduplication (smarter)
@@ -57,7 +72,7 @@ def _format_chunk(doc: RetrievedChunk) -> str:
 # ----------------------------
 # Context builder (core logic)
 # ----------------------------
-def retrieve_context(query: str, top_k: int = 5, max_chars: int = 12000) -> str:
+def retrieve(query: str, top_k: int = 5, max_chars: int = 12000) -> RetrievalResult:
     """
     End-to-end retrieval pipeline:
     search → normalize → dedup → rank → budget → format
@@ -66,7 +81,10 @@ def retrieve_context(query: str, top_k: int = 5, max_chars: int = 12000) -> str:
     raw_results = vector_search(query)
 
     if not raw_results:
-        return ""
+        return RetrievalResult(
+            context=""
+            ,chunks=[]
+            )
 
     # 1. normalize results
     results: List[RetrievedChunk] = []
@@ -107,9 +125,11 @@ def retrieve_context(query: str, top_k: int = 5, max_chars: int = 12000) -> str:
         total_chars += chunk_len
 
     # 6. format final context
-    formatted = [
-        _format_chunk(doc)
-        for doc in selected
-    ]
+    formatted = [ _format_chunk(doc) for doc in selected ]
 
-    return "\n\n---\n\n".join(formatted)
+    context = "\n\n---\n\n".join(formatted)
+
+    return RetrievalResult(
+        context=context
+        ,chunks=selected
+        )
