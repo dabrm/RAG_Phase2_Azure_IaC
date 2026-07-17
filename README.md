@@ -12,18 +12,24 @@ The primary objective of this repository is to demonstrate practical cloud engin
 
 ## Features
 
+### architecture
+- Modular project architecture
 - Infrastructure deployment using Terraform
-- Azure OpenAI integration
-- Azure AI Search vector database
+- using Azure services (Azure OpenAI, AI Search( vector database)
+- Azure Key Vault integration
+
+### core RAG app
+- Deterministic/indempotent ingestion 
+- Custom recursive chunking 
+- Metadata-aware document indexing
+- Configurable retrieval pipeline
 - Hybrid retrieval (Vector + Keyword Search)
 - Query rewriting
-- Custom recursive chunking
-- Deterministic ingestion using SHA-256 hashes
-- Azure Key Vault integration
-- FastAPI REST API
-- Modular project architecture
-- Configurable retrieval pipeline
-- Metadata-aware document indexing
+
+### serving/frontend
+- FastAPI serving layer
+- Streamlit frontend GUI (on top of FastAPI layer)
+
 
 ---
 
