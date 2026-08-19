@@ -72,7 +72,7 @@ def _format_chunk(doc: RetrievedChunk) -> str:
 # ----------------------------
 # Context builder (core logic)
 # ----------------------------
-def retrieve(query: str, top_k: int = 5, max_chars: int = 12000) -> RetrievalResult:
+def retrieve(query: str, top_k: int = 5, max_chars: int = 5000) -> RetrievalResult:
     """
     End-to-end retrieval pipeline:
     search → normalize → dedup → rank → budget → format
@@ -102,7 +102,7 @@ def retrieve(query: str, top_k: int = 5, max_chars: int = 12000) -> RetrievalRes
     # 2. deduplicate
     results = _deduplicate(results)
 
-    # 3. score-aware sorting (critical upgrade)
+    # 3. score-aware sorting 
     results.sort(
     key=lambda x: float(x.score) if x.score is not None else 0.0,
     reverse=True
@@ -111,7 +111,7 @@ def retrieve(query: str, top_k: int = 5, max_chars: int = 12000) -> RetrievalRes
     # 4. top_k cutoff
     results = results[:top_k]
 
-    # 5. context budgeting (simple but effective)
+    # 5. context budgeting 
     selected = []
     total_chars = 0
 

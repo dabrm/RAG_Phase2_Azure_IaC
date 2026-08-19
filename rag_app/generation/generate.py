@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 
 from rag_app.core.clients import get_openai_client
@@ -29,7 +30,18 @@ class GenerationResult:
 
 def generate_answer(question: str):
 
+    total_start = time.perf_counter()
+
+    # Retrieval
+    start = time.perf_counter()
+
     retrieval = retrieve(question)
+
+    print(
+        f"[TIMING] retrieval: "
+        f"{time.perf_counter() - start:.3f}s"
+    )
+
     context = retrieval.context
 
     messages = [
@@ -49,12 +61,35 @@ Question:
 """
         }
     ]
+
+    # Generation
+    start = time.perf_counter()
+
     openai_client = get_openai_client()
+
+    print(f"[TIMING] context length: {len(context)} chars")
+
+    generation_start = time.perf_counter()
 
     response = openai_client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
         temperature=settings.temperature
+    )
+
+    generation_end = time.perf_counter()
+
+    print(f"[TIMING] Azure OpenAI generation API call: "
+    f"{generation_end - generation_start:.3f}s")
+
+    print(
+        f"[TIMING] generation: "
+        f"{time.perf_counter() - start:.3f}s"
+    )
+
+    print(
+        f"[TIMING] generate_answer total: "
+        f"{time.perf_counter() - total_start:.3f}s"
     )
 
     return GenerationResult(

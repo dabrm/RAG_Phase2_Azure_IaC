@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
+import time
 
 from azure.search.documents.models import VectorizedQuery
 
@@ -30,20 +31,37 @@ def vector_search(query: str) -> List[SearchResultChunk]:
     """
     Hybrid vector search over Azure AI Search index.
     """
+    total_start = time.perf_counter() # simple time-logging - overal start
 
-    query = rewrite_query(query)
+    start = time.perf_counter() # query rewrite start 
+
+    # query = rewrite_query(query) # skipping query rewrite for performance reasons (one LLM call less)
+
+    print(
+    f"[TIMING] query rewrite: "
+    f"{time.perf_counter() - start:.3f}s"
+    )
 
     if not query:
         raise ValueError("Query cannot be empty.")
 
     # 1. Create embedding for semantic search
+    start = time.perf_counter()
+
     embedding = generate_embeddings([query])[0]
+
+    print(
+    f"[TIMING] query embedding: "
+    f"{time.perf_counter() - start:.3f}s"
+    )
 
     vector_query = _build_vector_query(embedding)
 
     search_client = get_search_client(settings.azure_search_index_name)
 
     # 2. Hybrid search (vector + keyword)
+    start = time.perf_counter()
+
     results = search_client.search(
         search_text=query,  # keyword boost for entity matching (Smaug, Bilbo, etc.)
         vector_queries=[vector_query],
@@ -69,6 +87,14 @@ def vector_search(query: str) -> List[SearchResultChunk]:
                 score=float(score) if score is not None else None
                 )
                 )
+    print(
+    f"[TIMING] Azure AI Search: "
+    f"{time.perf_counter() - start:.3f}s"
+    )
+
+    print(
+    f"[TIMING] vector_search total: "
+    f"{time.perf_counter() - total_start:.3f}s")
 
     # 4. Guard: no results
     if not output:
