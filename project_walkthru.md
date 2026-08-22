@@ -9,7 +9,7 @@
 ## 1. Why this project?
 
 The goal was not to build a large production system.
-The dataset is intentionally small. The engineering principles are not.
+The dataset is intentionally small. 
 
 I wanted a **small, understandable RAG application** that demonstrates how I approach an AI application from an engineering perspective:
 
@@ -30,7 +30,7 @@ I wanted a **small, understandable RAG application** that demonstrates how I app
 | **Separation of layers** | Ingestion, retrieval, generation, API, GUI and infrastructure are separated |
 | **Config ≠ app. logic** | Runtime settings are centralized in configuration |
 | **Security by design** | Azure credentials/endpoints are retrieved through Key Vault |
-| **API serving interface** | The API can serve clients other than Streamlit |
+| **API serving-interface** | The API can serve clients other than Streamlit |
 
 
 ---
@@ -56,10 +56,6 @@ flowchart TD
     style OAI fill:#efe,stroke:#484
 ```
 
-The important architectural boundary is that GUI  **does not need to know how the RAG pipeline or Azure infrastructure works**.
-
-This means the same API could later be consumed by another client—for example a Teams bot, another web application, or an automated service.
-
 ---
 
 # 3. The data
@@ -76,6 +72,28 @@ data/
 ```
 
 The goal of the project is not web-crawling, therefore **downloaded HTML documents** are used as the input to the ingestion pipeline (with some parsing logic applied).
+
+Pages:
+1. https://en.wikipedia.org/wiki/The_Hobbit
+1. https://en.wikipedia.org/wiki/Middle-earth
+1. https://en.wikipedia.org/wiki/Bilbo_Baggins
+1. https://en.wikipedia.org/wiki/Hobbit
+1. https://en.wikipedia.org/wiki/Gandalf
+1. https://en.wikipedia.org/wiki/Dwarves_in_Middle-earth
+1. https://en.wikipedia.org/wiki/List_of_The_Hobbit_characters
+1. https://en.wikipedia.org/wiki/Smaug
+1. https://en.wikipedia.org/wiki/Thorin_Oakenshield
+1. https://en.wikipedia.org/wiki/Lonely_Mountain
+1. https://en.wikipedia.org/wiki/Elrond
+1. https://en.wikipedia.org/wiki/Gollum
+1. https://en.wikipedia.org/wiki/Warg#J._R._R._Tolkien
+1. https://en.wikipedia.org/wiki/Beorn
+1. https://en.wikipedia.org/wiki/Esgaroth
+1. https://en.wikipedia.org/wiki/Bard_the_Bowman
+1. https://en.wikipedia.org/wiki/Rivendell
+1. https://en.wikipedia.org/wiki/Geography_of_Middle-earth#Misty_Mountains
+1. https://en.wikipedia.org/wiki/One_Ring
+1. https://en.wikipedia.org/wiki/Mirkwood
 
 ### Why Wikipedia?
 
@@ -95,7 +113,7 @@ It also makes the demo easy to understand during an interview.
 
 # 4. Live demo
 
-...
+'Who is Bilbo Baggins?' vs. 'Who is Harry Potter?'
 
 ---
 
