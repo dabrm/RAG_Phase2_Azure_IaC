@@ -172,7 +172,7 @@ Instead of sending the question directly to the language model, the system first
 
 The retrieval pipeline consists of:
 
-1. Query rewriting
+1. Query rewriting (optional)
 2. Query embedding generation
 3. Hybrid search
 4. Result ranking
