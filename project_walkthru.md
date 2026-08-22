@@ -1,16 +1,17 @@
 # RAG Demo — Azure / Python / Terraform
 
-> **A small-scale RAG application designed to demonstrate enterprise-oriented Data Engineering, Cloud Engineering and AI/LLM engineering principles.**
->
-> **Interview walkthrough:** ~10–15 minutes
+**A small-scale RAG application designed to demonstrate enterprise-oriented Data Engineering, Cloud Engineering and AI/LLM engineering principles.**
+
+**Interview walkthrough:** ~10–15 minutes
 
 ---
 
 ## 1. Why this project?
 
 The goal was not to build a large production system.
+The dataset is intentionally small. The engineering principles are not.
 
-Instead, I wanted a **small, understandable RAG application** that demonstrates how I approach an AI application from an engineering perspective:
+I wanted a **small, understandable RAG application** that demonstrates how I approach an AI application from an engineering perspective:
 
 - **Data Engineering** — ingestion, chunking, embeddings, indexing and deduplication
 - **AI / LLM Engineering** — embeddings, retrieval and grounded generation
@@ -19,7 +20,7 @@ Instead, I wanted a **small, understandable RAG application** that demonstrates 
 - **Security** — Azure Key Vault for application secrets
 - **Software Engineering** — modular architecture and separation of concerns
 
-The dataset is intentionally small. The engineering principles are not.
+
 
 ### Design principles
 
@@ -55,19 +56,7 @@ flowchart TD
     style OAI fill:#efe,stroke:#484
 ```
 
-The important architectural boundary is:
-
-```mermaid
-flowchart LR
-    GUI["Streamlit GUI"] -->|"HTTP / API"| API["OpenAPI layer"]
-    API --> RAG["RAG application"]
-    RAG --> RET["Retrieval"]
-    RAG --> GEN["Generation"]
-    RET --> SEARCH["Azure AI Search"]
-    GEN --> OAI["Azure OpenAI"]
-```
-
-The GUI therefore **does not need to know how the RAG pipeline or Azure infrastructure works**.
+The important architectural boundary is that GUI  **does not need to know how the RAG pipeline or Azure infrastructure works**.
 
 This means the same API could later be consumed by another client—for example a Teams bot, another web application, or an automated service.
 
@@ -86,7 +75,7 @@ data/
     └── wiki_urls.txt
 ```
 
-The downloaded HTML documents are used as the input to the ingestion pipeline.
+The goal of the project is not web-crawling, therefore **downloaded HTML documents** are used as the input to the ingestion pipeline (with some parsing logic applied).
 
 ### Why Wikipedia?
 
@@ -106,53 +95,7 @@ It also makes the demo easy to understand during an interview.
 
 # 4. Live demo
 
-The easiest way to understand the application is to run it.
-
-## Start the API
-
-```bash
-uvicorn rag_app.api.app:app --reload
-```
-
-The API is the boundary between the client and the RAG application.
-
-## Start Streamlit
-
-```bash
-streamlit run frontend/streamlit_app.py
-```
-
-Then use the GUI to ask questions.
-
-### Question 1 — in-domain retrieval
-
-> **Who is Bilbo Baggins?**
-
-This demonstrates the normal RAG path:
-
-```mermaid
-flowchart LR
-    Q["Question"] --> E["Embedding"]
-    E --> S["Azure AI Search"]
-    S --> C["Relevant chunks"]
-    C --> CTX["Context"]
-    CTX --> LLM["LLM"]
-    LLM --> A["Answer"]
-```
-
-### Question 2 — entity-oriented retrieval
-
-> **What was the name of the boss dwarf that contracted Bilbo for his adventure?**
-
-This is useful because it is not simply a keyword lookup. The system has to retrieve context around the relevant entities and relationships.
-
-### Question 3 — grounding / out-of-domain test
-
-> **Who is Harry Potter?**
-
-The knowledge base is about Middle-earth, not Harry Potter.
-
-This is deliberately useful as a demo question: it lets me discuss **grounding and the limitations of a RAG system** rather than only demonstrating a successful retrieval.
+...
 
 ---
 
@@ -169,7 +112,7 @@ The main Azure resources are:
 | Resource | Purpose |
 |---|---|
 | **Azure OpenAI** | LLM inference + embedding generation |
-| **GPT-4o-mini deployment** | Answer generation |
+| **GPT-4o-mini deployment** | actual LLM engine |
 | **text-embedding-3-small deployment** | Document/query embeddings |
 | **Azure AI Search** | Vector + keyword retrieval |
 | **Azure Key Vault** | Secrets and service endpoints |
@@ -195,19 +138,7 @@ flowchart TB
 
 The Terraform configuration creates Azure OpenAI with separate deployments for embeddings and generation.
 
-Azure AI Search is configured as the retrieval layer, with a Basic search service and a single replica/partition for this small-scale demo.
 
-### Why Terraform?
-
-The point is not simply:
-
-> "I know Terraform."
-
-The point is:
-
-> **The environment is reproducible and infrastructure is treated as code rather than as a collection of manually-created Azure resources.**
-
-That becomes increasingly important as an application moves from a demo towards multiple environments.
 
 ---
 
@@ -230,19 +161,6 @@ flowchart LR
     KV --> S4["Search key"]
 ```
 
-### Engineering principle
-
-The application should depend on:
-
-```text
-"give me the secret I need"
-```
-
-rather than:
-
-```text
-"here is the secret"
-```
 
 That keeps credentials out of the application logic and makes the application configuration easier to manage.
 
@@ -420,7 +338,7 @@ flowchart LR
     D --> DD["Deduplicate"]
     DD --> SORT["Sort by score"]
     SORT --> K["Top-K"]
-    K --> B["Context budget"]
+    K --> B["Context"]
     B --> C["Formatted context"]
 ```
 
@@ -581,212 +499,3 @@ flowchart TB
 ```
 
 ---
-
-# 13. The main engineering decisions
-
-For the interview, these are the decisions I would focus on rather than explaining every file.
-
-### 1. Why RAG?
-
-The LLM itself does not need to contain the domain knowledge.
-
-Instead:
-
-```text
-Knowledge → Search
-Reasoning / generation → LLM
-```
-
-This separates the knowledge layer from the model layer.
-
-### 2. Why Azure AI Search?
-
-It provides the retrieval infrastructure needed for the application, including vector search and traditional keyword search.
-
-### 3. Why separate ingestion and retrieval?
-
-Because they have different lifecycles:
-
-```text
-Ingestion → relatively infrequent
-
-Retrieval → happens for every question
-```
-
-They therefore should not be coupled.
-
-### 4. Why an API between GUI and RAG?
-
-The GUI is a client, not the application itself.
-
-```mermaid
-flowchart LR
-    UI["Streamlit"] --> API["API"] --> RAG["RAG"]
-```
-
-That means another client could be introduced without changing the core RAG pipeline.
-
-### 5. Why Terraform?
-
-To make the Azure environment reproducible and treat infrastructure as code.
-
-### 6. Why Key Vault?
-
-To separate secrets from application code and centralize access to credentials/endpoints.
-
-### 7. Why hashing?
-
-To make ingestion incremental rather than repeatedly processing identical files.
-
----
-
-# 14. Interview walkthrough
-
-The project can be presented in roughly this order:
-
-### **01 — Motivation**
-
-> "I wanted to demonstrate both AI/LLM skills and traditional Data/Cloud Engineering skills in one small project."
-
-↓
-
-### **02 — Data**
-
-> "The knowledge base is deliberately small: a collection of Wikipedia articles about Middle-earth."
-
-↓
-
-### **03 — Live demo**
-
-Ask two normal questions and one out-of-domain question.
-
-↓
-
-### **04 — Infrastructure**
-
-Show:
-
-```text
-Azure OpenAI
-Azure AI Search
-Key Vault
-Storage
-Resource Group
-```
-
-Then explain what each resource contributes.
-
-↓
-
-### **05 — RAG pipeline**
-
-Walk left-to-right:
-
-```mermaid
-flowchart LR
-    I["INGESTION"] --> R["RETRIEVAL"] --> G["GENERATION"]
-```
-
-↓
-
-### **06 — Engineering principles**
-
-Finish with:
-
-> "The interesting part of this project isn't that it can answer questions about Tolkien. It's that the same application structure could be used with a different dataset and scaled into a different use case."
-
----
-
-# 15. Quick reference
-
-| Layer | Technology |
-|---|---|
-| Language | Python |
-| API | FastAPI / OpenAPI |
-| UI | Streamlit |
-| LLM | Azure OpenAI — GPT-4o-mini |
-| Embeddings | Azure OpenAI — text-embedding-3-small |
-| Vector / keyword search | Azure AI Search |
-| Secrets | Azure Key Vault |
-| Infrastructure | Terraform |
-| State | Azure Storage |
-| Data | Wikipedia HTML |
-
----
-
-# 16. Run locally
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Make sure the Azure infrastructure and required secrets are available.
-
-Create the Search indexes:
-
-```bash
-python -m rag_app.ingestion.create_index
-```
-
-Run ingestion:
-
-```bash
-python -m rag_app.ingestion.ingest
-```
-
-Start the API:
-
-```bash
-uvicorn rag_app.api.app:app --reload
-```
-
-Start the UI:
-
-```bash
-streamlit run frontend/streamlit_app.py
-```
-
----
-
-# 17. The one-minute version
-
-> **This is a small RAG application built on Azure.**
->
-> I deliberately kept the dataset small so that I could focus on engineering principles rather than building a large data platform.
->
-> The documents go through an ingestion pipeline where they are loaded, chunked, embedded and indexed in Azure AI Search. At query time, the user's question is embedded and sent to Azure AI Search using vector and keyword retrieval. The best chunks are then assembled into a bounded context and passed to Azure OpenAI for generation.
->
-> Around that core RAG flow, I separated the API, GUI, ingestion, retrieval, generation and infrastructure layers. Terraform provisions the Azure resources, while Key Vault handles the service credentials and endpoints.
->
-> The main thing I wanted to demonstrate is that an AI application can still follow traditional engineering principles: **separation of concerns, reproducibility, security, incremental processing and clear interfaces between components.**
-
----
-
-## Suggested interview architecture view
-
-Rather than walking through individual Terraform files, show the architecture at the resource level:
-
-```mermaid
-flowchart TB
-    DATA["Wikipedia documents"]
-
-    DATA --> RAG["RAG Application"]
-
-    RAG --> OAI["Azure OpenAI<br/>GPT-4o-mini + Embeddings"]
-    RAG --> SEARCH["Azure AI Search<br/>Vector + Keyword Search"]
-    RAG --> KV["Azure Key Vault<br/>Secrets / Endpoints"]
-
-    TF["Terraform"] --> OAI
-    TF --> SEARCH
-    TF --> KV
-    TF --> STORAGE["Azure Storage<br/>Terraform State"]
-
-    UI["Streamlit GUI"] --> API["OpenAPI / FastAPI"]
-    API --> RAG
-```
-
-Then make the core interview message:
-
-> **"I used a small RAG problem to demonstrate how I would engineer an AI system, rather than simply demonstrating an LLM call."**
