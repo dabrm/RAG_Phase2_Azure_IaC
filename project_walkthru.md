@@ -13,12 +13,11 @@ The dataset is intentionally small.
 
 I wanted a **small, understandable RAG application** that demonstrates how I approach an AI application from an engineering perspective:
 
-- **Data Engineering** — ingestion, chunking, embeddings, indexing and deduplication
+- **Cloud Data Engineering** — ingestion, chunking, embeddings, indexing and deduplication, using Azure-managed services.
 - **AI / LLM Engineering** — embeddings, retrieval and grounded generation
-- **Cloud Engineering** — Azure-managed services
 - **Infrastructure as Code** — Terraform
 - **Security** — Azure Key Vault for application secrets
-- **Software Engineering** — modular architecture and separation of concerns
+- **Best Practices** — modular architecture and config vs. application-logic separation
 
 
 
@@ -36,6 +35,26 @@ I wanted a **small, understandable RAG application** that demonstrates how I app
 ---
 
 ## 2. Architecture at a glance
+
+Application modules dependency graph:
+
+```mermaid
+flowchart TB
+    APP["Application"]
+
+    APP --> ING["Ingestion"]
+    APP --> RET["Retrieval"]
+    APP --> GEN["Generation"]
+    APP --> CORE["Core"]
+
+    CORE --> AZ["Azure services"]
+
+    UI["Streamlit"] --> API["API"]
+
+    API --> APP
+```
+
+Data-flow graph:
 
 ```mermaid
 flowchart TD
@@ -129,13 +148,13 @@ The main Azure resources are:
 
 | Resource | Purpose |
 |---|---|
-| **Azure OpenAI** | LLM inference + embedding generation |
-| **GPT-4o-mini deployment** | actual LLM engine |
-| **text-embedding-3-small deployment** | Document/query embeddings |
-| **Azure AI Search** | Vector + keyword retrieval |
+| **Resource Group** | logical container |
 | **Azure Key Vault** | Secrets and service endpoints |
-| **Azure Storage Account** | Terraform state / infrastructure support |
-| **Resource Group** | Azure resource organization |
+| **Azure Storage Account** | Terraform state |
+| **Azure OpenAI** | AI-endpoint container, where  models can be deployed (gpt-4o, text-embedding-3-large) |
+| **GPT-4o-mini** | actual LLM engine |
+| **text-embedding-3-small** | embeddings |
+| **Azure AI Search** | Vector-search, Document-indexing |
 
 At a high level:
 
@@ -166,19 +185,6 @@ Application secrets are not hardcoded into the RAG modules.
 
 The application retrieves secrets through the central client layer, while Terraform provisions the relevant Key Vault secrets.
 
-For example:
-
-```mermaid
-flowchart LR
-    APP["RAG application"] --> CLIENTS["core/clients.py"]
-    CLIENTS --> KV["Azure Key Vault"]
-
-    KV --> S1["OpenAI endpoint"]
-    KV --> S2["OpenAI API key"]
-    KV --> S3["Search endpoint"]
-    KV --> S4["Search key"]
-```
-
 
 That keeps credentials out of the application logic and makes the application configuration easier to manage.
 
@@ -186,12 +192,7 @@ That keeps credentials out of the application logic and makes the application co
 
 # 7. RAG pipeline
 
-The RAG implementation is deliberately separated into three major stages:
-
-```mermaid
-flowchart LR
-    I["INGESTION"] --> R["RETRIEVAL"] --> G["GENERATION"]
-```
+The RAG implementation is deliberately separated into three major stages - Ingestion, Retrieval and Generation.
 
 Each stage has its own module:
 
@@ -235,27 +236,9 @@ Chunking is intentionally isolated from the rest of ingestion.
 rag_app/ingestion/chunking.py
 ```
 
-The strategy follows a simple hierarchy:
-
-```mermaid
-flowchart TD
-    P["Paragraph"] --> S["Sentence"]
-    S --> C["Character fallback"]
-```
-
-Long paragraphs are recursively split into smaller pieces, while the final chunks can retain overlap with the preceding chunk.
-
-This is an example of keeping **configuration and strategy separate from orchestration**.
-
 Instead of embedding chunking decisions throughout the ingestion code, ingestion simply receives a `ChunkingStrategy`.
 
-That makes it easier to experiment with:
-
-- chunk size
-- overlap
-- splitting strategy
-
-without rewriting the ingestion pipeline.
+That makes it easier to experiment with chunking parameters without rewriting the ingestion pipeline.
 
 ---
 
@@ -284,17 +267,10 @@ The resulting Search document contains both the original content and its vector:
 }
 ```
 
-The Azure AI Search index defines a vector field named:
-
-```text
-contentVector
-```
-
-and configures vector search using an HNSW algorithm.
 
 ### Why keep the metadata?
 
-The vector is useful for retrieval, but metadata is useful for everything around retrieval:
+The vector is useful for retrieval, but metadata is useful for everything around retrieval (filtering, debugging, governance etc):
 
 ```text
 content
@@ -304,10 +280,6 @@ chunk_index
 strategy
 hash
 ```
-
-For example, after retrieving a chunk, the application can still explain:
-
-> "This came from article X, chunk Y."
 
 ---
 
@@ -335,11 +307,7 @@ source
 ingested_at
 ```
 
-The application checks these values before re-processing a file.
-
-This is a small but important engineering detail.
-
-A pipeline should not blindly regenerate embeddings every time it runs.
+A pipeline should not blindly regenerate embeddings every time it runs (prevents data-skew if same chunk gets re-ingested 100 times by mistake).
 
 ---
 
@@ -403,11 +371,7 @@ flowchart LR
     B --> F["Formatted context"]
 ```
 
-This is an important distinction:
 
-> **Retrieval is not just "call vector search."**
-
-There is application logic between the search engine and the LLM.
 
 ---
 
@@ -430,14 +394,6 @@ rag_app/generation/
 ```
 
 This keeps the LLM interaction independent from the mechanism used to find the supporting documents.
-
-The architectural idea is:
-
-```mermaid
-flowchart TD
-    RET["Retrieval"] -->|"context"| GEN["Generation"]
-    GEN -->|"answer"| OUT["Response"]
-```
 
 This separation would make it possible to change the retrieval implementation without redesigning the generation layer.
 
@@ -497,23 +453,5 @@ dabrm-rag_phase2_azure_iac/
 └── requirements.txt
 ```
 
-The structure mirrors the architecture:
-
-```mermaid
-flowchart TB
-    APP["Application"]
-
-    APP --> ING["Ingestion"]
-    APP --> RET["Retrieval"]
-    APP --> GEN["Generation"]
-    APP --> CORE["Core"]
-
-    CORE --> AZ["Azure services"]
-
-    TF["Terraform"] --> INFRA["Infrastructure"]
-    UI["Streamlit"] --> API["API"]
-
-    API --> APP
-```
 
 ---
