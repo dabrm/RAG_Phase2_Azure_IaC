@@ -1,7 +1,10 @@
 from typing import List
 import time
 
-from rag_app.core.clients import get_search_client
+from rag_app.core.clients import (
+    get_search_client,
+    get_search_index_name
+)
 from rag_app.ingestion.chunking import Chunk
 from rag_app.ingestion.embeddings import generate_embeddings
 from rag_app.core.config import settings

@@ -2,8 +2,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 import hashlib
 
-from rag_app.core.clients import get_search_client
-from rag_app.core.config import settings
+from rag_app.core.clients import (
+    get_search_client,
+    get_search_ingestion_index_name
+)
 
 def compute_content_hash(content: str) -> str:
     """
