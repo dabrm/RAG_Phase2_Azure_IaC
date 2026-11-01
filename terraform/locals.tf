@@ -21,7 +21,7 @@ storage_account_name = "ragstoragedemo${local.subscription_suffix}"
 # Cognitive Services account
 openai_name = "rag-openai-demo-${local.subscription_suffix}"
 
-}
+
 
 # Azure AI Search index names
 search_index_name           = "rag-documents-${local.subscription_suffix}"
