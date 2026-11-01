@@ -9,7 +9,7 @@ resource "azurerm_key_vault" "kv" {
   purge_protection_enabled   = false
 }
 
-# indexes names - also stored as KV secrets
+# indexes names - also stored as KV secrets (to make it easier for future deployments)
 resource "azurerm_key_vault_secret" "search_index_name" {
   name         = "search-index-name"
   value        = local.search_index_name
