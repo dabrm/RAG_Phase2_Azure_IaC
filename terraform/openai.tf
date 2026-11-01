@@ -1,5 +1,5 @@
 resource "azurerm_cognitive_account" "openai" {
-  name                = "rag-openai-demo"
+  name                = local.openai_name
   location            = azurerm_resource_group.rag_rg.location
   resource_group_name = azurerm_resource_group.rag_rg.name
 

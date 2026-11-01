@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "rag_storage" {
-  name                     = "ragstoragedemomdab02"
+  name                     = local.storage_account_name
   resource_group_name      = azurerm_resource_group.rag_rg.name
   location                 = azurerm_resource_group.rag_rg.location
   account_tier             = "Standard"
