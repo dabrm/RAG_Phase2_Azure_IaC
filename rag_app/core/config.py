@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     embedding_dimensions: int = 1536 # text-embedding-3-small default dimensions
     embedding_batch_size: int = 1 # using cheapest tier of embedding model (6 requests/min limit)
 
-    # Azure AI Search
-    azure_search_index_name: str # one srtoring chunks
-    azure_search_ingestion_index_name : str # one storing deterministic-hashes for ingested chubks (deduplication)
+    # # Azure AI Search
+    # azure_search_index_name: str # one srtoring chunks
+    # azure_search_ingestion_index_name : str # one storing deterministic-hashes for ingested chubks (deduplication)
 
     # Key Vault
     key_vault_url: str

@@ -32,6 +32,14 @@ def get_secret(name: str) -> str:
 
     return _secret_cache[name]
 
+# Azure AI Search index names
+def get_search_index_name() -> str:
+    return get_secret("search-index-name")
+
+
+def get_search_ingestion_index_name() -> str:
+    return get_secret("search-ingestion-index-name")
+
 
 # Client caches
 _openai_client = None

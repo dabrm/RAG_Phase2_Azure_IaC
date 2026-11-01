@@ -59,7 +59,7 @@ def chunks_to_search_documents(chunks: List[Chunk]) -> List[dict]:
 
 def upload_documents(documents: List[dict]):
 
-    search_client = get_search_client(settings.azure_search_index_name)
+    search_client = get_search_client(get_search_index_name())
 
     results = search_client.upload_documents(
         documents=documents

@@ -13,8 +13,14 @@ from azure.search.documents.indexes.models import (
     HnswAlgorithmConfiguration
 )
 
-from rag_app.core.clients import get_secret
+from rag_app.core.clients import (
+    get_secret,
+    get_search_index_name,
+    get_search_ingestion_index_name
+)
+
 from rag_app.core.config import settings
+
 
 
 def get_index_client() -> SearchIndexClient:
@@ -134,7 +140,7 @@ def build_rag_index_definition() -> SearchIndex:
     )
 
     return SearchIndex(
-        name=settings.azure_search_index_name,
+        name=get_search_index_name(),
         fields=fields,
         vector_search=vector_search
     )
@@ -182,7 +188,7 @@ def build_ingestion_index_definition() -> SearchIndex:
     ]
 
     return SearchIndex(
-        name=settings.azure_search_ingestion_index_name,
+        name=get_search_ingestion_index_name(),
         fields=fields
     )
 

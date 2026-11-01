@@ -36,7 +36,7 @@ def is_already_ingested(
 ) -> bool:
 
     ingestion_client = get_search_client(
-        settings.azure_search_ingestion_index_name
+        get_search_ingestion_index_name()
     )
 
     filter_expression = (
@@ -62,7 +62,7 @@ def mark_as_ingested(
 ):
 
     ingestion_client = get_search_client(
-        settings.azure_search_ingestion_index_name
+        get_search_ingestion_index_name()
     )
 
     document = {

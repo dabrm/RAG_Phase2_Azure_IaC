@@ -9,3 +9,15 @@ resource "azurerm_key_vault" "kv" {
   purge_protection_enabled   = false
 }
 
+# indexes names - also stored as KV secrets
+resource "azurerm_key_vault_secret" "search_index_name" {
+  name         = "search-index-name"
+  value        = local.search_index_name
+  key_vault_id = azurerm_key_vault.kv.id
+}
+
+resource "azurerm_key_vault_secret" "search_ingestion_index_name" {
+  name         = "search-ingestion-index-name"
+  value        = local.search_ingestion_index_name
+  key_vault_id = azurerm_key_vault.kv.id
+}
