@@ -56,7 +56,8 @@ def ingest_html_file(html_file: Path):
     )
 
     print(
-        f"Uploaded {len(documents)} documents"
+        # f"Uploaded {len(documents)} documents"
+        f"Uploaded {documents} documents"
     )
 
 
