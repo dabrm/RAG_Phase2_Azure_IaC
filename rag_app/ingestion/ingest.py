@@ -48,8 +48,6 @@ def ingest_html_file(html_file: Path):
     # documents = chunks_to_search_documents(chunks)
     documents = embed_and_upload(chunks)
 
-    upload_documents(documents)
-
     mark_as_ingested(
         file_hash=file_hash,
         source=html_file.name,
