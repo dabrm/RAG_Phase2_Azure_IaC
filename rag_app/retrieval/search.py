@@ -9,6 +9,7 @@ from rag_app.ingestion.embeddings import generate_embeddings
 from rag_app.core.config import settings
 from rag_app.retrieval.query_rewrite import rewrite_query
 
+from rag_app.core.clients import get_search_index_name
 
 @dataclass
 class SearchResultChunk:
