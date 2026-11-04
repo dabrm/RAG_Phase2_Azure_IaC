@@ -86,3 +86,32 @@ def upload_documents(documents: List[dict]):
         )
 
     return results
+
+def embed_and_upload(chunks: List[Chunk]) -> int:
+    uploaded = 0
+    size = settings.embedding_batch_size
+
+    for i in range(0, len(chunks), size):
+        batch = chunks[i:i + size]
+        embeddings = generate_embeddings([c.content for c in batch])
+
+        documents = [
+            {
+                "chunk_id": c.chunk_id,
+                "content": c.content,
+                "contentVector": emb,
+                "source": c.source,
+                "title": c.title,
+                "chunk_index": c.chunk_index,
+                "strategy_name": c.strategy_name,
+                "content_hash": compute_content_hash(c.content),
+            }
+            for c, emb in zip(batch, embeddings)
+        ]
+
+        upload_documents(documents)
+        uploaded += len(documents)
+        print(f"Embedded + uploaded {uploaded}/{len(chunks)}")
+        time.sleep(11)  # keep only while you're on the 6 req/min tier
+
+    return uploaded

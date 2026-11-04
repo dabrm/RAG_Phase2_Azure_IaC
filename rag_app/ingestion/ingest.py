@@ -1,7 +1,7 @@
 from pathlib import Path
 from loaders.wiki_loader import load_wikipedia_html
 from rag_app.ingestion.chunking import chunk_text,DEFAULT_STRATEGY
-from rag_app.ingestion.indexing import chunks_to_search_documents,upload_documents
+from rag_app.ingestion.indexing import embed_and_upload,chunks_to_search_documents,upload_documents
 from rag_app.core.config import settings
 from rag_app.ingestion.hashing import compute_file_hash,is_already_ingested,mark_as_ingested
 
@@ -45,9 +45,8 @@ def ingest_html_file(html_file: Path):
         f"Created {len(chunks)} chunks"
     )
 
-    documents = chunks_to_search_documents(
-        chunks
-    )
+    # documents = chunks_to_search_documents(chunks)
+    documents = embed_and_upload(chunks)
 
     upload_documents(documents)
 
