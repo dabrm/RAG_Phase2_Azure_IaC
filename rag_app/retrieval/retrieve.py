@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from rag_app.retrieval.search import vector_search
+from rag_app.core.config import settings
 
 
 
@@ -72,7 +73,7 @@ def _format_chunk(doc: RetrievedChunk) -> str:
 # ----------------------------
 # Context builder (core logic)
 # ----------------------------
-def retrieve(query: str, top_k: int = 5, max_chars: int = 5000) -> RetrievalResult:
+def retrieve(query: str, top_k: int = settings.top_k_retrieval, max_chars: int = 5000) -> RetrievalResult:
     """
     End-to-end retrieval pipeline:
     search → normalize → dedup → rank → budget → format
