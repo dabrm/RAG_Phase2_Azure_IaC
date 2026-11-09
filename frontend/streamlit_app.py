@@ -128,7 +128,7 @@ if question:
         for word in result["answer"].split():
             current += word + " "
             placeholder.markdown(current)
-            time.sleep(0.08)
+            time.sleep(0.02)
 
         with st.expander("Retrieved sources"):
 

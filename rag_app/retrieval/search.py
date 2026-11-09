@@ -17,7 +17,7 @@ class SearchResultChunk:
     source: str
     title: str
     chunk_index: int
-    score: Optional[dict] = None
+    score: Optional[float] = None
 
 
 def _build_vector_query(embedding: List[float]) -> VectorizedQuery:

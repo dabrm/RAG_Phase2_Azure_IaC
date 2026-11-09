@@ -38,8 +38,6 @@ def generate_embeddings(texts: str | List[str]) -> List[List[float]]:
     if not texts:
         raise ValueError("No texts provided for embedding generation.")
 
-    openai_client = get_openai_client()
-
     response = _embed_with_retry(texts)
 
     embeddings = [ item.embedding for item in response.data ]

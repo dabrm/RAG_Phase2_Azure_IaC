@@ -11,7 +11,7 @@ class RetrievedChunk:
     source: str
     title: str
     chunk_index: int
-    score: Optional[dict] = None
+    score: Optional[float] = None
 
 # ----------------------------
 # Structured retrieval object (dataclass instead of dictionary)
