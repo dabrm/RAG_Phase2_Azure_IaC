@@ -97,7 +97,7 @@ J[Retrieved Context]
 end
 
 subgraph Generation
-K[GPT-4o-mini]
+K[GPT-5-mini]
 L[Generated Answer]
 end
 
@@ -198,7 +198,7 @@ F --> G[Deduplicate Results]
 
 G --> H[Build Prompt Context]
 
-H --> I[GPT-4o-mini]
+H --> I[GPT-5-mini]
 
 I --> J[Answer]
 ```
@@ -234,7 +234,7 @@ The following diagram illustrates the complete lifecycle of a single user reques
                 Construct Prompt Context
                              │
                              ▼
-                  GPT-4o-mini Generation
+                  GPT-5-mini Generation
                              │
                              ▼
                     Generated Answer

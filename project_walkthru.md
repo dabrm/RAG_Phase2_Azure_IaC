@@ -151,7 +151,7 @@ The main Azure resources are:
 | **Resource Group** | logical container |
 | **Azure Key Vault** | Secrets and service endpoints |
 | **Azure Storage Account** | Terraform state |
-| **Azure OpenAI** | AI-endpoint container, where  models can be deployed (gpt-4o, text-embedding-3-large) |
+| **Azure OpenAI** | AI-endpoint container, where  models can be deployed (gpt-4o, text-embedding-3-small) |
 | **GPT-4o-mini** | actual LLM engine |
 | **text-embedding-3-small** | embeddings |
 | **Azure AI Search** | Vector-search, Document-indexing |
