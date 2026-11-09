@@ -106,6 +106,6 @@ Question:
 
     # proceed with normal  return of results
     return GenerationResult(
-        answer=response.choices[0].message.content
+        answer=answer
         ,sources=retrieval.chunks
         )
