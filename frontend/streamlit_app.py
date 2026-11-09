@@ -89,7 +89,7 @@ for message in st.session_state.messages:
 {source['chunk']}
 
 **Retrieval score:**  
-{source['retrieval_score']:.5f}
+{(source['retrieval_score'] or 0):.5f}
 """
                     )
 
@@ -145,7 +145,7 @@ if question:
 {source['chunk']}
 
 **Retrieval score:**  
-{source['retrieval_score']:.5f}
+{(source['retrieval_score'] or 0):.5f}
 """
                 )
 
