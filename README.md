@@ -142,7 +142,7 @@ Each document passes through the following stages:
 7. Upload documents into Azure AI Search
 8. Store ingestion metadata
 
-​```mermaid
+```mermaid
 flowchart LR
 
 A["1. File hash +<br/>ingestion check"]
@@ -165,7 +165,7 @@ E --> F
 F --> G
 G --> H
 H --> I
-​```
+```
 
 The ingestion process is deterministic and idempotent. If a document has already been processed and its content has not changed, embedding generation and indexing are skipped, reducing both processing time and Azure OpenAI costs.
 
