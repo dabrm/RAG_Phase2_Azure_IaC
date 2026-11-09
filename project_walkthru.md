@@ -151,8 +151,8 @@ The main Azure resources are:
 | **Resource Group** | logical container |
 | **Azure Key Vault** | Secrets and service endpoints |
 | **Azure Storage Account** | Terraform state |
-| **Azure OpenAI** | AI-endpoint container, where  models can be deployed (gpt-4o, text-embedding-3-small) |
-| **GPT-4o-mini** | actual LLM engine |
+| **Azure OpenAI** | AI-endpoint container, where  models can be deployed (gpt-5, text-embedding-3-small) |
+| **gpt-5-mini** | actual LLM engine |
 | **text-embedding-3-small** | embeddings |
 | **Azure AI Search** | Vector-search, Document-indexing |
 
@@ -162,7 +162,7 @@ At a high level:
 flowchart TB
     RAG["RAG Application"]
 
-    RAG --> OAI["Azure OpenAI<br/>GPT-4o-mini + Embeddings"]
+    RAG --> OAI["Azure OpenAI<br/>gpt-5-mini + Embeddings"]
     RAG --> SEARCH["Azure AI Search<br/>Vector + Keyword Search"]
     RAG --> KV["Azure Key Vault<br/>Secrets / Endpoints"]
 

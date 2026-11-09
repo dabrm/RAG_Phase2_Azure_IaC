@@ -133,32 +133,39 @@ The ingestion pipeline transforms raw HTML documents into searchable vector repr
 
 Each document passes through the following stages:
 
-1. Parse HTML content
-2. Extract the article body
-3. Split text into semantic chunks
-4. Generate document metadata
-5. Calculate deterministic SHA-256 hashes
+1. Calculate the SHA-256 hash of the file and check the ingestion tracking index (skip the file if already ingested)
+2. Parse HTML content
+3. Extract the article body
+4. Split text into chunks (paragraph → sentence → character fallback)
+5. Generate chunk metadata and deterministic hashes (chunk ID, content hash)
 6. Generate embeddings using Azure OpenAI
 7. Upload documents into Azure AI Search
 8. Store ingestion metadata
 
-```mermaid
+​```mermaid
 flowchart LR
 
-A[Streamlit Chat UI]
-B[FastAPI API]
-C[Query Rewrite]
-D[Azure AI Search]
-E[Azure OpenAI]
-F[Answer + Citations]
+A["1. File hash +<br/>ingestion check"]
+B{"Already<br/>ingested?"}
+S["Skip file"]
+C["2. Parse HTML"]
+D["3. Extract article body"]
+E["4. Chunk text"]
+F["5. Chunk metadata +<br/>SHA-256 hashes"]
+G["6. Azure OpenAI<br/>embeddings"]
+H["7. Upload to<br/>Azure AI Search"]
+I["8. Store ingestion<br/>metadata"]
 
 A --> B
-B --> C
+B -- "yes" --> S
+B -- "no" --> C
 C --> D
 D --> E
 E --> F
-F --> A
-```
+F --> G
+G --> H
+H --> I
+​```
 
 The ingestion process is deterministic and idempotent. If a document has already been processed and its content has not changed, embedding generation and indexing are skipped, reducing both processing time and Azure OpenAI costs.
 
