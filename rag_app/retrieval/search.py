@@ -66,7 +66,11 @@ def vector_search(query: str) -> List[SearchResultChunk]:
     results = search_client.search(
         search_text=query,  # keyword boost for entity matching (Smaug, Bilbo, etc.)
         vector_queries=[vector_query],
-        select=["content", "source", "title", "chunk_index"]
+        select=["content", "source", "title", "chunk_index"],
+        
+        # In a hybrid query, k_nearest_neighbors=5 only limits the vector side
+        # The keyword side returns EVERY chunk that matches ANY word in your question. So  Tolkien corpus + question with  “the” or “Bilbo” returns everything.
+        top=settings.top_k_retrieval, 
     )
 
     # 3. Normalize results
