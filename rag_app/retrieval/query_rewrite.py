@@ -36,7 +36,6 @@ def rewrite_query(query: str) -> str:
     response = client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
-        temperature=0.0
     )
 
     rewritten = response.choices[0].message.content.strip()

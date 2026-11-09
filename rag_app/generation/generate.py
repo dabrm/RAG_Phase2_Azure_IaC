@@ -74,7 +74,6 @@ Question:
     response = openai_client.chat.completions.create(
         model=settings.azure_openai_chat_deployment,
         messages=messages,
-        temperature=settings.temperature
     )
 
     generation_end = time.perf_counter()

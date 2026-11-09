@@ -24,9 +24,6 @@ class Settings(BaseSettings):
     # Retrieval settings
     top_k_retrieval: int = 5
 
-    # Generation settings
-    temperature: float = 0.3
-
     # Chunking settings
     chunk_size: int = 500
     chunk_overlap: int = 50
