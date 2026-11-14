@@ -4,8 +4,9 @@ resource "azurerm_search_service" "search" {
   #location            = azurerm_resource_group.rag_rg.location
   location            = "eastus" #  everything sits on "eastus2", but Azure has no more search capacity available in that region.
 
-  sku = "basic"
+  # sku = "basic"
+  sku = "free"
   
-  replica_count   = 1
-  partition_count = 1
+  # replica_count   = 1
+  # partition_count = 1
 }
