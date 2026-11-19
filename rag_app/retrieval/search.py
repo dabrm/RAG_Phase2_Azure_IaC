@@ -8,8 +8,8 @@ from rag_app.core.clients import get_search_client
 from rag_app.ingestion.embeddings import generate_embeddings
 from rag_app.core.config import settings
 from rag_app.retrieval.query_rewrite import rewrite_query
-
 from rag_app.core.clients import get_search_index_name
+from rag_app.core.logging import logger
 
 @dataclass
 class SearchResultChunk:
@@ -34,27 +34,34 @@ def vector_search(query: str) -> List[SearchResultChunk]:
     """
     total_start = time.perf_counter() # simple time-logging - overal start
 
-    start = time.perf_counter() # query rewrite start 
-
-    # query = rewrite_query(query) # skipping query rewrite for performance reasons (one LLM call less)
-
-    print(
-    f"[TIMING] query rewrite: "
-    f"{time.perf_counter() - start:.3f}s"
-    )
-
     if not query:
         raise ValueError("Query cannot be empty.")
+
+    original_query = query
+    start = time.perf_counter()
+
+    # 0. Optional query rewrite (never let it break the request)
+    if settings.enable_query_rewrite:
+        try:
+            query = rewrite_query(original_query)
+        except Exception as exc:
+            logger.warning(
+                "Query rewrite failed (%s), using original query",
+                type(exc).__name__,
+            )
+            query = original_query
+
+    print(f"[TIMING] query rewrite: {time.perf_counter() - start:.3f}s")
+    print(f"[QUERY] original: {original_query!r} -> used: {query!r}")
+
+
 
     # 1. Create embedding for semantic search
     start = time.perf_counter()
 
     embedding = generate_embeddings([query])[0]
 
-    print(
-    f"[TIMING] query embedding: "
-    f"{time.perf_counter() - start:.3f}s"
-    )
+    print(f"[TIMING] query embedding: "f"{time.perf_counter() - start:.3f}s")
 
     vector_query = _build_vector_query(embedding)
 
@@ -92,14 +99,9 @@ def vector_search(query: str) -> List[SearchResultChunk]:
                 score=float(score) if score is not None else None
                 )
                 )
-    print(
-    f"[TIMING] Azure AI Search: "
-    f"{time.perf_counter() - start:.3f}s"
-    )
-
-    print(
-    f"[TIMING] vector_search total: "
-    f"{time.perf_counter() - total_start:.3f}s")
+        
+    print(f"[TIMING] Azure AI Search: {time.perf_counter() - start:.3f}s")
+    print(f"[TIMING] vector_search total: {time.perf_counter() - total_start:.3f}s")
 
     # 4. Guard: no results
     if not output:
