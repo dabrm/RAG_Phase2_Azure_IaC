@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # Retrieval settings
     top_k_retrieval: int = 5
-    enable_query_rewrite: bool = True
+    enable_query_rewrite: bool = False
 
     # Chunking settings
     chunk_size: int = 500
